@@ -1,0 +1,69 @@
+import copy
+import itertools
+import logging
+import re
+import sys
+import time
+
+from collections import defaultdict
+
+import numpy as np
+import pandas as pd
+
+import pylib.aochelper as aoc
+#from pylib.aochelper import map_list as mapl
+#from pylib.aochelper import filter_list as filterl
+
+f"Python version: {sys.version}" |> print
+f"Version info: {sys.version_info}" |> print
+
+log = aoc.getLogger(__name__)
+f"Initial log-level={aoc.getLogLevelName(log.getEffectiveLevel())}." |> print
+
+"Day 1" |> print
+
+tests = """
+1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000
+""".strip()
+
+def solve_day01pt1(inp):
+  """Solve Day 1 part 1."""
+  reindeers = inp.split("\n\n") |> fmap$( x -> x.split("\n") |> fmap$(int) )
+  #reindeers |> print
+  return reindeers |> map$(sum) |> max
+
+expected = 24_000
+result = solve_day01pt1(tests)
+aoc.assert_msg(f"test solve day 1 part 1 expected={expected} result={result}", result == expected)
+
+ins = aoc.read_file_to_str("./in/day01.in").strip()
+out = solve_day01pt1(ins)
+f"day 1 part 1 output: {out}" |> print
+
+"Day 1 part 2" |> print
+
+def solve_day01pt2(inp):
+  """Solve Day 1 part 2."""
+  reindeers = inp.split("\n\n") |> fmap$( x -> x.split("\n") |> fmap$(int) )
+  top3 = reindeers |> fmap$(sum) |> sorted$(reverse=True) |> .[0:3]
+  return top3 |> sum
+
+expected = 45_000
+result = solve_day01pt2(tests)
+aoc.assert_msg(f"test solve day 1 part 1 expected={expected} result={result}", result == expected)
+
+out = solve_day01pt2(ins)
+f"day 1 part 2 output: {out}" |> print
