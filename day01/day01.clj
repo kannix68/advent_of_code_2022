@@ -15,15 +15,14 @@
     (println "assert-OK:" msg))
 )
 
-(defn assert-eq-msg [expected got msg]
+(defn assert-eq-msg [expected found msg]
   "Check expected = found, fail with message on false, print message otherwise"
-  (let [tst (= expected got)]
+  (let [tst (= expected found)]
     (if (not tst)
-      (assert tst (str "assert-ERROR: expected=" expected "got=" got ": " msg))
-      (println "assert-OK: got=expected=" expected ": " msg))
+      (assert tst (str "assert-ERROR: expected=" expected ", found=" found ": " msg))
+      (println "assert-OK: found=expected=" expected ": " msg))
   )
 )
-
 
 (defn explode-str [str sep]
   "Explode a (multiline) string into list-of-strings,
@@ -87,6 +86,7 @@
 (def datastr (slurp "./in/day01.in"))
 
 (println "day 01 pt 1 result=" (solve-day01-a datastr))
+
 (assert-eq-msg 45000 (solve-day01-b teststr) "pt 2 test result")
 
 (println "day 01 pt 2 result=" (solve-day01-b datastr))
