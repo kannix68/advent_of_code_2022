@@ -16,7 +16,7 @@
 )
 
 (defn assert-eq-msg [expected found msg]
-  "Check expected = found, fail with message on false, print message otherwise"
+  "Check expected = found, fail with message on false, print message otherwise."
   (let [tst (= expected found)]
     (if (not tst)
       (assert tst (str "assert-ERROR: expected=" expected ", found=" found ": " msg))
@@ -24,25 +24,18 @@
   )
 )
 
-(defn explode-str [str sep]
-  "Explode a (multiline) string into list-of-strings,
-   by splitting on separator."
-  ;(map #(seq (str/split % #"")) (str/split str sep))
-  (str/split (str/trim str) sep)
-)
-
 ;** problem solution
 (defn read-dataset [s]
   "Read/convert data string into list-of-list of integers."
   (let [
-    lst (explode-str s #"\r?\n\r?\n")  ; outer split on empty lines
-    lst2 (map #(explode-str % #"\r?\n") lst)  ; inner split on newlines
+    lst (str/split (str/trim s) #"\r?\n\r?\n")  ; outer split on empty lines
+    lst2 (map #(str/split % #"\r?\n") lst)  ; inner split on newlines
     ]
     (map #(map read-string %) lst2)  ; map inner string elements (level 2) to int
   )
 )
 
-(defn solve-day01-a [s]
+(defn solve-day01-pt1 [s]
   (let [
     lst (read-dataset s)
     lstred (map #(reduce + %) lst)
@@ -51,7 +44,7 @@
   )
 )
 
-(defn solve-day01-b [s]
+(defn solve-day01-pt2 [s]
   (let [
     lst (read-dataset s)
     lstred (map #(reduce + %) lst)  ; inner sums
@@ -81,12 +74,12 @@
 
 ;** MAIN
 
-(assert-eq-msg 24000 (solve-day01-a teststr) "pt 1 test result")
+(assert-eq-msg 24000 (solve-day01-pt1 teststr) "pt 1 test result")
 
 (def datastr (slurp "./in/day01.in"))
 
-(println "day 01 pt 1 result=" (solve-day01-a datastr))
+(println "day 01 pt 1 result=" (solve-day01-pt1 datastr))
 
-(assert-eq-msg 45000 (solve-day01-b teststr) "pt 2 test result")
+(assert-eq-msg 45000 (solve-day01-pt2 teststr) "pt 2 test result")
 
-(println "day 01 pt 2 result=" (solve-day01-b datastr))
+(println "day 01 pt 2 result=" (solve-day01-pt2 datastr))
