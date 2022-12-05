@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 
 import pylib.aochelper as aoc
-#from pylib.aochelper import map_list as mapl
-#from pylib.aochelper import filter_list as filterl
+from pylib.aochelper import map_list as mapl
+from pylib.aochelper import filter_list as filterl
 
 f"Python version: {sys.version}" |> print
 f"Version info: {sys.version_info}" |> print
@@ -273,6 +273,142 @@ aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", r
 
 ins = aoc.read_file_to_str(f"./in/{symb}.in").strip()
 out = solve_day04pt2(ins)
+f"{day} {part} output: {out}" |> print
+
+day = "Day 5"
+symb = "day05"
+part = "part 1"
+tests = """
+    [D]    
+[N] [C]    
+[Z] [M] [P]
+ 1   2   3 
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2
+"""
+
+def pop_n(l, n):
+  """Pop n members from top of stack (list), return popped head and altered stack."""
+  popped, popped_lst = [ l[-n:], l[0:len(l)-n] ]
+  return [popped, popped_lst]
+
+def push_n(l, data):
+  """Push data (list) members to top of stack (list), return altered stack."""
+  for elem in data:
+    l.append(elem)
+  return l
+
+def transpose_lol(lol):
+  """Transpose a list-of-lists."""
+  # short circuits at shortest nested list if table is jagged:
+  return list(map(list, zip(*lol)))
+
+def get_stacks(rows):
+  """Take parsed rows from input string and pprocess into target data structure list-of-tacks."""
+  stacks = transpose_lol(rows)
+  stacks = mapl(lambda it: list(reversed(it)), stacks)
+  for stack in stacks:
+    while stack[-1] == "":
+      stack.pop()
+  return stacks
+
+def play_stack_cmds(stacks, cmds):
+  """Play the commands on stacks data."""
+  for cmd in cmds:
+    anz, frm, to = cmd
+    hd, stacks[frm-1] = pop_n(stacks[frm-1], anz)
+    stacks[to-1] = push_n(stacks[to-1], reversed(hd))
+  return stacks
+
+def solve_day05pt1(inp):
+  """Solve Day 5 part 1."""
+  chunk_size = 4
+  stacks = []
+  rows = []
+  cmds = []
+  #f"inp=\n{inp}" |> print
+  for line in inp.split("\n"):
+    #f"line=>{line}< len={len(line)}" |> print
+    line += " "
+    if "[" in line:
+      llen = len(line)
+      row = [ line[i:i+chunk_size] for i in range(0, llen, chunk_size) ]
+      #f"found row1={row}" |> print
+      row = mapl(lambda it: it.replace("[", "").replace("]", "").strip(), row)
+      #f"found row2={row}" |> print
+      rows.append(row)
+    elif line.strip() == "":
+      #"empty line found" |> print
+      continue
+    elif "move" in line:
+      m = re.search(r"^move (\d+) from (\d+) to (\d+)", line)
+      l = mapl(int, [m.group(1), m.group(2), m.group(3)])
+      cmds.append(l)
+    else:
+      #f"unparsed line=>{line}<" |> print
+      continue
+  stacks = get_stacks(rows)
+  #f"initial_stacks=\n{stacks}" |> print
+  #f"  cmds=\n{cmds}" |> print
+  stacks = play_stack_cmds(stacks, cmds)
+  result = "".join([stack.pop() for stack in stacks])
+  #f"result={result}" |> print
+  return result
+
+f"{day} {part}" |> print
+expected = "CMZ"
+result = solve_day05pt1(tests)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+ins = aoc.read_file_to_str(f"./in/{symb}.in")
+out = solve_day05pt1(ins)
+f"{day} {part} result: {out}" |> print
+
+def play_stack_cmds_pt2(stacks, cmds):
+  """Play the commands on stacks data, modified for part 2."""
+  for cmd in cmds:
+    anz, frm, to = cmd
+    hd, stacks[frm-1] = pop_n(stacks[frm-1], anz)
+    stacks[to-1] = push_n(stacks[to-1], hd)  # changed, not reversed
+  return stacks
+
+def solve_day05pt2(inp):
+  """Solve Day 5 part 2."""
+  chunk_size = 4
+  stacks = []
+  rows = []
+  cmds = []
+  for line in inp.split("\n"):
+    line += " "
+    if "[" in line:
+      llen = len(line)
+      row = [ line[i:i+chunk_size] for i in range(0, llen, chunk_size) ]
+      row = mapl(lambda it: it.replace("[", "").replace("]", "").strip(), row)
+      rows.append(row)
+    elif line.strip() == "":
+      continue
+    elif "move" in line:
+      m = re.search(r"^move (\d+) from (\d+) to (\d+)", line)
+      l = mapl(int, [m.group(1), m.group(2), m.group(3)])
+      cmds.append(l)
+    else:
+      continue
+  stacks = get_stacks(rows)
+  stacks = play_stack_cmds_pt2(stacks, cmds)  # changed, pt2
+  result = "".join([stack.pop() for stack in stacks])
+  return result
+
+part = "part 2"
+expected = "MCD"
+f"{day} {part}" |> print
+result = solve_day05pt2(tests)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+ins = aoc.read_file_to_str(f"./in/{symb}.in")
+out = solve_day05pt2(ins)
 f"{day} {part} output: {out}" |> print
 
 
