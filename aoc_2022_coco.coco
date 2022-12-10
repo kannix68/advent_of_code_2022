@@ -271,7 +271,6 @@ f"{day} {part}" |> print
 result = solve_day04pt2(tests)
 aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
 
-ins = aoc.read_file_to_str(f"./in/{symb}.in").strip()
 out = solve_day04pt2(ins)
 f"{day} {part} output: {out}" |> print
 
@@ -407,8 +406,161 @@ f"{day} {part}" |> print
 result = solve_day05pt2(tests)
 aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
 
-ins = aoc.read_file_to_str(f"./in/{symb}.in")
 out = solve_day05pt2(ins)
 f"{day} {part} output: {out}" |> print
+
+day = "Day 6"
+symb = "day06"
+part = "part 1"
+tests = """
+mjqjpqmgbljsphdztnvjfqwrcgsmlb
+""".strip()  # 7
+test2 = "bvwbjplbgvbhsrlpgdmjqwftvncz"  # 5
+test3 = "nppdvjthqldpwncqszvftbrmjlhg"  # 6
+test4 = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"  # 10
+test5 = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"  # 11
+
+def solve_day06(inp, pkglen=4):
+  """Solve Day 6 part 1."""
+  pkgct = pkglen - 1
+  result = -1
+  for idx, c in enumerate(inp):
+    if idx < pkgct:
+      continue
+    l = list(inp[idx-pkgct:idx+1])
+    #l |> print
+    st = set(l)
+    if len(st) == pkglen:
+      result = idx+1
+      break
+  return result
+
+f"{day} {part}" |> print
+expected = 7
+result = solve_day06(tests)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 5; result = solve_day06(test2)
+aoc.assert_msg(f"test2 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 6; result = solve_day06(test3)
+aoc.assert_msg(f"test3 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 10; result = solve_day06(test4)
+aoc.assert_msg(f"test4 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 11; result = solve_day06(test5)
+aoc.assert_msg(f"test5 solve {day} {part} expected={expected} result={result}", result == expected)
+
+ins = aoc.read_file_to_str(f"./in/{symb}.in")
+ins = ins.splitlines()[0]
+out = solve_day06(ins)
+f"{day} {part} result: {out}" |> print
+
+part = "part 2"
+expected = 19
+f"{day} {part}" |> print
+result = solve_day06(tests, pkglen=14)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 23; result = solve_day06(test2, pkglen=14)
+aoc.assert_msg(f"test2 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 23; result = solve_day06(test3, pkglen=14)
+aoc.assert_msg(f"test3 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 29; result = solve_day06(test4, pkglen=14)
+aoc.assert_msg(f"test4 solve {day} {part} expected={expected} result={result}", result == expected)
+
+expected = 26; result = solve_day06(test5, pkglen=14)
+aoc.assert_msg(f"test5 solve {day} {part} expected={expected} result={result}", result == expected)
+
+out = solve_day06(ins, pkglen=14)
+f"{day} {part} output: {out}" |> print
+
+day = "Day 7"
+symb = "day07"
+part = "part 1"
+tests = """
+$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k
+""".strip()
+
+def get_dirsizes(inp):
+  from pathlib import Path
+  from collections import Counter
+
+  dirsizes = Counter()
+  currdir = top = Path('/')
+
+  for line in inp.splitlines():
+    args = line.strip().split()
+    if args[0] == '$':
+      if args[1] == 'cd':
+        if args[2] == '/':
+          currdir = top
+        elif args[2] == '..':
+          currdir = currdir.parent
+        else:
+          currdir /= args[2]
+    elif args[0] != 'dir':
+      #dirsizes[currdir] += (size := int(args[0]))
+      size = int(args[0])
+      dirsizes[currdir] += size
+      for p in currdir.parents:
+        dirsizes[p] += size
+  return dirsizes
+
+def solve_day07pt1(inp):
+  #dirsizes = get_dirsizes(inp)
+  #sizelist = sorted(dirsizes.values())
+  sizelist = get_dirsizes(inp).values()
+  return sum(n for n in sizelist if n <= 100_000)
+
+f"{day} {part}" |> print
+expected = 95437
+result = solve_day07pt1(tests)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+ins = aoc.read_file_to_str(F"./in/{symb}.in").strip()
+out = solve_day07pt1(ins)
+f"{day} {part} result: {out}" |> print
+
+def solve_day07pt2(inp):
+  #print('P2 =', sizelist[bisect(sizelist, dirsizes[top] - 4000_0000)])
+  sizelist = get_dirsizes(inp).values()
+  totsize = max(sizelist)
+  sizelist = filterl(lambda it: it >= totsize - 4000_0000, sizelist)
+  return min(sizelist)
+
+part = "part 2"
+f"{day} {part}" |> print
+expected = 24933642
+result = solve_day07pt2(tests)
+aoc.assert_msg(f"test solve {day} {part} expected={expected} result={result}", result == expected)
+
+out = solve_day07pt2(ins)
+f"{day} {part} result: {out}" |> print
 
 
